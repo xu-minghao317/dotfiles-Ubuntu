@@ -1,0 +1,20 @@
+- defaults:
+    link:
+      create: true
+      force: true
+    shell:
+      quiet: true
+      stdin: true
+      stdout: true
+      stderr: true
+
+- clean: ["~"]
+
+- link:
+    ~/.zshenv:
+    ~/.zprofile:
+    ~/.zshrc:
+    ~/.fzf.zsh:
+    ~/.hyper.js: config/hyper.js
+    ~/.gitconfig: config/gitconfig
+    ~/bat.conf: config/bat.conf
