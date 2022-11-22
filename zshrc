@@ -1,4 +1,4 @@
-# Fig pre block. Keep at the top of this file.
+### Fig pre block. Keep at the top of this file ###
 [[ -f "$HOME/.fig/shell/zshrc.pre.zsh" ]] && builtin source "$HOME/.fig/shell/zshrc.pre.zsh"
 
 autoload U colors && colors # make colors available
@@ -7,12 +7,12 @@ autoload U colors && colors # make colors available
 # Path to oh-my-zsh installation
 export ZSH="$HOME/.oh-my-zsh"
 
-# ZSH_THEME="" # now using starship
+# ZSH_THEME="" # now using starship 🚀
 
 # Update oh-my-zsh
 zstyle ':omz:update' mode auto
-zstyle ':omz:update' frequency 30 # update omz every 30 days
-export UPDATE_ZSH_DAYS=30 # update plugins and themes using autoupdate plugin every 30 days
+zstyle ':omz:update' frequency 60 # update omz every 60 days
+export UPDATE_ZSH_DAYS=60 # update plugins and themes using autoupdate plugin every 60 days
 
 # Disable marking untracked files under VCS as dirty
 # This makes repository status check for large repositories much, much faster
@@ -67,7 +67,7 @@ add-zsh-hook chpwd load-nvmrc
 load-nvmrc
 
 # pnpm config
-# export PNPM_HOME="$HOME/Library/pnpm"
+export PNPM_HOME="$HOME/.local/share/pnpm"
 [[ ":$PATH:" == *":$PNPM_HOME:"* ]] || export PATH="$PNPM_HOME:$PATH" # corepack
 # command -v pnpm >/dev/null || export PATH="$PNPM_HOME:$PATH" # standalone
 
@@ -86,11 +86,11 @@ export FZF_CTRL_T_OPTS="--height 100% --preview-window wrap --preview 'batcat --
 export FZF_ALT_C_COMMAND='fd --type d --strip-cwd-prefix --hidden --follow --exclude .git'
 export FZF_ALT_C_OPTS="--height 100% --preview 'tree -C {} | head -50'"
 
-# Default NULLCMD is cat, use bat when commands like `<<EOF` are used
-export NULLCMD=bat
-
 # Fix gpg signing
 export GPG_TTY=$(tty)
+
+# Texlive (fix-need)
+# export PATH="/usr/local/texlive/2022/bin/x86_64-linux:$PATH"
 
 # zoxide initalization
 eval "$(zoxide init zsh --cmd cd)" # override cd
@@ -104,24 +104,27 @@ alias path='<<<${(F)path}' # print path in a column using bat (NULLCMD)
 
 alias diff='echo "Use $fg_bold[red]delta$reset_color instead"; false'
 
-alias top='htop'
+alias top='btop'
+
+alias vim='nvim'
+alias vi='nvim'
 
 # Functions
 function update(){
-  echo -e "🚀 $fg_bold[red]Updating apt...$reset_color\n️"
+  echo -e "🤖 $fg_bold[red]Updating apt...$reset_color\n️"
   sudo apt update && sudo apt upgrade -y && sudo apt autoremove -y
 
-  echo -e "🚀  $fg_bold[red]Updating pip packages...$reset_color\n️"
+  echo -e "🤖 $fg_bold[red]Updating pip packages...$reset_color\n️"
   pipupgrade --self && pipupgrade --yes 2>/dev/null
 
-  # echo -e "🚀  $fg_bold[red]Updating npm and pnpm packages...$reset_color\n️"
+  # echo -e "🤖 $fg_bold[red]Updating npm and pnpm packages...$reset_color\n️"
   # npm update -g
   # pnpm update -g
 
-  # echo -e "🚀  $fg[red]Updating omz...$reset_color\n️"
+  # echo -e "🤖 $fg[red]Updating omz...$reset_color\n️"
   # upgrade_oh_my_zsh_all # * this function comes from autoupdate plugin, update all plugins and themes
 
-  echo "🍰  All done!"
+  echo "🍰 ✨ All done!"
 }
 
 function note(){
