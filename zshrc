@@ -1,6 +1,3 @@
-### Fig pre block. Keep at the top of this file ###
-[[ -f "$HOME/.fig/shell/zshrc.pre.zsh" ]] && builtin source "$HOME/.fig/shell/zshrc.pre.zsh"
-
 autoload U colors && colors # make colors available
 
 ### oh-my-zsh config ###
@@ -12,7 +9,6 @@ export ZSH="$HOME/.oh-my-zsh"
 # Update oh-my-zsh
 zstyle ':omz:update' mode auto
 zstyle ':omz:update' frequency 60 # update omz every 60 days
-export UPDATE_ZSH_DAYS=60 # update plugins and themes using autoupdate plugin every 60 days
 
 # Disable marking untracked files under VCS as dirty
 # This makes repository status check for large repositories much, much faster
@@ -21,10 +17,13 @@ DISABLE_UNTRACKED_FILES_DIRTY="true"
 # Plugins to load
 # * keep zsh-syntax-highlighting at last
 plugins=(
-autoupdate
 you-should-use
 git
 zsh-autosuggestions
+sudo # press <ESC> twice to run the last command with sudo
+extract
+gpg-agent
+command-not-found
 zsh-syntax-highlighting
 )
 
@@ -32,51 +31,32 @@ zsh-syntax-highlighting
 # adding it as a regular omz plugin will not work properly
 fpath+=${ZSH_CUSTOM:-${ZSH:-~/.oh-my-zsh}/custom}/plugins/zsh-completions/src
 
-source $ZSH/oh-my-zsh.sh # compinit is called here
+export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#808080"
+
+builtin source $ZSH/oh-my-zsh.sh # compinit is called here
 
 ### normal config ###
-# pyenv config
-export PYENV_ROOT="$HOME/.pyenv"
-command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init -)"
-
-# nvm config
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-# call nvm use automatically whenever entering a directory that contains an .nvmrc file with a string telling nvm which node to use
-autoload -U add-zsh-hook
-load-nvmrc() {
-  local node_version="$(nvm version)"
-  local nvmrc_path="$(nvm_find_nvmrc)"
-
-  if [ -n "$nvmrc_path" ]; then
-    local nvmrc_node_version=$(nvm version "$(cat "${nvmrc_path}")")
-
-    if [ "$nvmrc_node_version" = "N/A" ]; then
-      nvm install
-    elif [ "$nvmrc_node_version" != "$node_version" ]; then
-      nvm use
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+__conda_setup="$('/home/xu-minghao/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "/home/xu-minghao/miniconda3/etc/profile.d/conda.sh" ]; then
+        . "/home/xu-minghao/miniconda3/etc/profile.d/conda.sh"
+    else
+        export PATH="/home/xu-minghao/miniconda3/bin:$PATH"
     fi
-  elif [ "$node_version" != "$(nvm version default)" ]; then
-    echo "Reverting to nvm default version"
-    nvm use default
-  fi
-}
-add-zsh-hook chpwd load-nvmrc
-load-nvmrc
-
-# pnpm config
-export PNPM_HOME="$HOME/.local/share/pnpm"
-[[ ":$PATH:" == *":$PNPM_HOME:"* ]] || export PATH="$PNPM_HOME:$PATH" # corepack
-# command -v pnpm >/dev/null || export PATH="$PNPM_HOME:$PATH" # standalone
+fi
+unset __conda_setup
+# <<< conda initialize <<<
 
 # bat config
 export BAT_CONFIG_PATH="$HOME/bat.conf"
-export MANPAGER="sh -c 'col -bx | bat -l man -p'" # set syntax-highlighting for man using bat
+export MANPAGER="sh -c 'col -bx | batcat -l man -p'" # set syntax-highlighting for man using bat
 
 # fzf config
-[ -f ~/.fzf.zsh ] && builtin source ~/.fzf.zsh
+builtin source /usr/share/doc/fzf/examples/key-bindings.zsh
 export FZF_DEFAULT_COMMAND='fd --type f --strip-cwd-prefix --hidden --follow --exclude .git'
 export FZF_DEFAULT_OPTS='--exact --cycle'
 
@@ -87,60 +67,16 @@ export FZF_ALT_C_COMMAND='fd --type d --strip-cwd-prefix --hidden --follow --exc
 export FZF_ALT_C_OPTS="--height 100% --preview 'tree -C {} | head -50'"
 
 # Fix gpg signing
-export GPG_TTY=$(tty)
-
-# Texlive (fix-need)
-# export PATH="/usr/local/texlive/2022/bin/x86_64-linux:$PATH"
+# export GPG_TTY=$(tty)
 
 # zoxide initalization
 eval "$(zoxide init zsh --cmd cd)" # override cd
 
-# Aliases
-alias ls='exa -aFh --icons' # display a table of files with header, showing each file's metadata, and icons
+### Aliases ###
+[[ -f "$HOME/.dotfiles/aliases.zsh" ]] && builtin source "$HOME/.dotfiles/aliases.zsh" 
 
-alias cat='bat'
-
-alias path='<<<${(F)path}' # print path in a column using bat (NULLCMD)
-
-alias diff='echo "Use $fg_bold[red]delta$reset_color instead"; false'
-
-alias top='btop'
-
-alias vim='nvim'
-alias vi='nvim'
-
-# Functions
-function update(){
-  echo -e "🤖 $fg_bold[red]Updating apt...$reset_color\n️"
-  sudo apt update && sudo apt upgrade -y && sudo apt autoremove -y
-
-  echo -e "🤖 $fg_bold[red]Updating pip packages...$reset_color\n️"
-  pipupgrade --self && pipupgrade --yes 2>/dev/null
-
-  # echo -e "🤖 $fg_bold[red]Updating npm and pnpm packages...$reset_color\n️"
-  # npm update -g
-  # pnpm update -g
-
-  # echo -e "🤖 $fg[red]Updating omz...$reset_color\n️"
-  # upgrade_oh_my_zsh_all # * this function comes from autoupdate plugin, update all plugins and themes
-
-  echo "🍰 ✨ All done!"
-}
-
-function note(){
-  # create and open a new markdown file
-  if [[ -f "$1.md" ]]; then
-    glow "$1.md"
-  else
-    touch "$1.md" && glow "$1.md"
-  fi
-}
-
-# remove duplicates, preserves the ordering of paths, and doesn't add a colon at the end
-# PATH="$(perl -e 'print join(":", grep { not $seen{$_}++ } split(/:/, $ENV{PATH}))')"
+### Functions ###
+[[ -f "$HOME/.dotfiles/functions.zsh" ]] && builtin source "$HOME/.dotfiles/functions.zsh"
 
 # Init startship prompt, keep at the bottom of this file
 eval "$(starship init zsh)"
-
-# Fig post block. Keep at the bottom of this file.
-[[ -f "$HOME/.fig/shell/zshrc.post.zsh" ]] && builtin source "$HOME/.fig/shell/zshrc.post.zsh"
